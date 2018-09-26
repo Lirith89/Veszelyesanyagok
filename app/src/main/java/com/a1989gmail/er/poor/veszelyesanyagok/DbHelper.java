@@ -25,6 +25,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME = "substances";
     private static String DB_PATH = "";
     private SQLiteDatabase mDataBase;
+    //TODO: ezt miért hozza létre ha később másik contextet hoz létre?
     private final Context mContext;
 
 
@@ -156,6 +157,7 @@ public class DbHelper extends SQLiteOpenHelper {
         // We should not update it as requirements of application.
     }
 
+    //ez egy lekérdezés amit később a mainfüggvényben fogok használni a legördülő listánál
     public List<String> getAllLabels(){
         List<String> labels = new ArrayList<String>();
 
