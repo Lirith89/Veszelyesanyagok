@@ -2,7 +2,6 @@ package com.a1989gmail.er.poor.veszelyesanyagok;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -67,48 +66,46 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
-        if(android.os.Build.VERSION.SDK_INT >= 17){
-            DB_PATH = context.getApplicationInfo().dataDir + "/databases/";
-        }else
-        {
-            DB_PATH = "/data/data/" + context.getPackageName() + "/databases/";
-        }
+        //if(android.os.Build.VERSION.SDK_INT >= 17){
+            DB_PATH = context.getApplicationInfo().dataDir + DATABASE_NAME;
+        //}else
+        //{
+        //    DB_PATH = "/data/data/" + context.getPackageName() + "/databases/";
+        //}
         this.mContext = context;
     }
 
-    @Override
-    public void onCreate (SQLiteDatabase db){
+    public void createDataBase (SQLiteDatabase db){
         boolean mDataBaseExist = checkDataBase();
-        /*String CREATE_TABLE="CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" ("+ID+" INTEGER PRIMARY KEY, "+EricardSubkey+" TEXT, "+Anyagnev+" TEXT, "+UnSzam+" TEXT, "+VeszelyJel+" TEXT, "+AdrVeszelyessegiBarcaSzama+" TEXT, "+AdrVeszelyessegiOsztaly+" TEXT, "+EricardsHivatkozasiSzam+" TEXT, "+InformacioVeszhelyzetbenValoBeavatkozashoz+" TEXT, "+JellemzoTulajdonsagai+" TEXT, "+Veszelyek+" TEXT, "+Szemelyvedelem+" TEXT, "+BeavatkozasiTevekenyseg+" TEXT, "+Elsosegelynyujtas+" TEXT, "+AlapvetoOvintezkedesekOsszegyujteshez+" TEXT, "+OvintezkedesekABeavatkozasUtan+" TEXT)";
+        /*String CREATE_TABLE="CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" ("+ID+" INTEGER PRIMARY KEY, "+EricardSubkey+" TEXT, "+Anyagnev+" TEXT, "+UnSzam+" TEXCREATE TABLE IF NOT EXISTS "+TABLE_NAME+" ("+ID+" INTEGER PRIMARY KEY, "+EricardSubkey+" TEXT, "+Anyagnev+" TEXT, "+UnSzam+T, "+VeszelyJel+" TEXT, "+AdrVeszelyessegiBarcaSzama+" TEXT, "+AdrVeszelyessegiOsztaly+" TEXT, "+EricardsHivatkozasiSzam+" TEXT, "+InformacioVeszhelyzetbenValoBeavatkozashoz+" TEXT, "+JellemzoTulajdonsagai+" TEXT, "+Veszelyek+" TEXT, "+Szemelyvedelem+" TEXT, "+BeavatkozasiTevekenyseg+" TEXT, "+Elsosegelynyujtas+" TEXT, "+AlapvetoOvintezkedesekOsszegyujteshez+" TEXT, "+OvintezkedesekABeavatkozasUtan+" TEXT)";
         db.execSQL(CREATE_TABLE);*/
         if(!mDataBaseExist){
             this.getReadableDatabase();
-            this.close();
+            //this.close();
             try{
                 //Copy the database from assests
-                copyDataBase();
+                    copyDataBase();
                 Log.e("DbHelper", "createDatabase database created");
             }catch (IOException mIOException){
                 throw new Error("ErrorCopyingDataBase");
             }
         }
-
     }
 
-    @Override
+    /*@Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME);
         onCreate(db);
-    }
+    }*/
 
     //Open the database, so we can query it
-    public boolean openDataBase() throws SQLException
+    public void openDataBase() /*throws SQLException*/
     {
         String mPath = DB_PATH + DATABASE_NAME;
-        //Log.v("mPath", mPath);
-        mDataBase = SQLiteDatabase.openDatabase(mPath, null, SQLiteDatabase.CREATE_IF_NECESSARY);
+        Log.v("mPath", mPath);
+        mDataBase = SQLiteDatabase.openDatabase(mPath, null, SQLiteDatabase.OPEN_READWRITE);
         //mDataBase = SQLiteDatabase.openDatabase(mPath, null, SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-        return mDataBase != null;
+        //return mDataBase != null;
     }
 
     @Override
@@ -123,7 +120,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private boolean checkDataBase()
     {
         File dbFile = new File(DB_PATH + DATABASE_NAME);
-        Log.v("dbFile", dbFile + "   "+ dbFile.exists());
+        //Log.v("dbFile", dbFile + "   "+ dbFile.exists());
         return dbFile.exists();
     }
 
@@ -142,6 +139,21 @@ public class DbHelper extends SQLiteOpenHelper {
         mOutput.flush();
         mOutput.close();
         mInput.close();
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // No need to write the create table query.
+        // As we are using Pre built data base.
+        // Which is ReadOnly.
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // No need to write the update table query.
+        // As we are using Pre built data base.
+        // Which is ReadOnly.
+        // We should not update it as requirements of application.
     }
 
     public List<String> getAllLabels(){
@@ -167,6 +179,16 @@ public class DbHelper extends SQLiteOpenHelper {
         // returning lables
         return labels;
     }
+
+    /*public void query(){
+        Log.i("DbHelper", "MysqlConnectre kísérlet indul");
+        Connection oonn = null;
+        try {
+            String driver = "net.sourceforge.jtds.jdbc.Driver";
+            Class.forName(driver).newInstance();
+        }catch ();
+    }*/
+
 
     //innen kezdődik a stackoverflow-s kód
     // Database Name

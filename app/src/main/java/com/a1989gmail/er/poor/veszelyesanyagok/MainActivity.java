@@ -1,7 +1,6 @@
 package com.a1989gmail.er.poor.veszelyesanyagok;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,41 +13,51 @@ import android.widget.Spinner;
 
 import java.util.List;
 
-import static com.a1989gmail.er.poor.veszelyesanyagok.DbHelper.DATABASE_NAME;
+import static com.a1989gmail.er.poor.veszelyesanyagok.DbConnect.DATABASE_NAME;
 
 public class MainActivity extends AppCompatActivity {
     Spinner spinner;
     SearchView searchView;
     Button searchButton;
+    //DataAdapter mDbHelper;
+    //DbConnect db;
+    DbConnect dbc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("MainActivity", "Elindult");
+        Log.i("MainActivity", "Elindult");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        DataAdapter mDbHelper = new DataAdapter();
-        mDbHelper.createDatabase();
-        mDbHelper.open();
 
-        Cursor testdata = mDbHelper.getTestData();
+       //init();
+        //db = new DbHelper(this);
+        //db.getReadableDatabase();
+        //Log.wtf("MainActivity", "a meghívásokon túljutott");
+        Log.i("mainactivity", "dbc meghívása indul");
+        dbc = new DbConnect(this);
+        try {
+            dbc.onCreate(this);
 
-        mDbHelper.close();
-        //DbHelper db = new DbHelper(this);
+        }
+        Log.i("mainactivity", "dbc meghívása sikeres");
+        //adatLekerdezes();
+        dbc.insertData();
         spinner=(Spinner)findViewById(R.id.spinner);
         loadSpinnerData();
-        Log.d("MainActivity", "onCreate fut");
+        Log.wtf("MainActivity", "végig ért");
     }
 
     private void loadSpinnerData() {
         // database handler
-        DbHelper db = new DbHelper(getApplicationContext());
+        Log.wtf("MainActivity", "belép a feltöltésbe");
+        dbc = new DbConnect(getApplicationContext());
         try {
             SQLiteDatabase sqLiteDatabase = SQLiteDatabase.openDatabase(DATABASE_NAME, null, Context.MODE_PRIVATE);
         }catch (Exception e){
             e.printStackTrace();
         }
         // Spinner Drop down elements
-        List<String> lables = db.getAllLabels();
+        List<String> lables = dbc.getAllLabels();
         // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, lables);
@@ -59,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchClicked (View searchView){
-        Log.i("MainActivity","Button press!");
+        Log.wtf("MainActivity","Button press!");
     }
 
     /*try {
@@ -68,14 +77,24 @@ public class MainActivity extends AppCompatActivity {
         e.printStackTrace();
     }*/
 
+    //TODO: adatlekérdezést felvenni
+    //ADAT LEKÉRDEZÉS
 
     /*public Cursor adatLekerdezes()
     {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
-        return cursor;
-
+        Log.i("MainActivity","belépünk az adatlekérdezésbe");
+        SQLiteDatabase db = dbc.getReadableDatabase();
+        Log.i("MainActivity","sqldb kész ");
+        Cursor c = db.rawQuery("SELECT un_szam FROM substances",null);
+        Log.i("MainActivity"," az query ok");
+        int unszamIndex = c.getColumnIndex(COL_4);
+        Log.i("MainActivity"," az indexkészítés ok ");
+        c.moveToFirst();
+        Log.i("MainActivity"," az mozgás vissza ok ");
+        while (c != null){
+            Log.i(COL_4, c.getString(unszamIndex));
+            c.moveToNext();
+        }Log.i("MainActivity"," az while ok");
+        return c;
     }*/
-
-
 }

@@ -6,26 +6,24 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import java.io.IOException;
-
 public class DataAdapter {
 
     protected static final String TAG = "DataAdapter";
     private final Context mContext;
-    private SQLiteDatabase mDb;
-    private DbHelper mDbHelper;
+    private SQLiteDatabase db;
+    private DbConnect dbc;
 
     public DataAdapter(Context context)
     {
         this.mContext = context;
-        mDbHelper = new DbHelper(mContext);
+        dbc = new DbConnect(mContext);
     }
 
-    public DataAdapter createDatabase() throws SQLException
+   /* public DataAdapter createDatabase() throws SQLException
     {
         try
         {
-            mDbHelper.onCreate();
+            mDbHelper.createDatabase();
         }
         catch (IOException mIOException)
         {
@@ -33,15 +31,15 @@ public class DataAdapter {
             throw new Error("UnableToCreateDatabase");
         }
         return this;
-    }
+    }*/
 
-    public DataAdapter open() throws SQLException
+   /* public DataAdapter open() throws SQLException
     {
         try
         {
-            mDbHelper.openDataBase();
-            mDbHelper.close();
-            mDb = mDbHelper.getReadableDatabase();
+            db.openDataBase();
+            db.close();
+            mDb = db.getReadableDatabase();
         }
         catch (SQLException mSQLException)
         {
@@ -49,11 +47,11 @@ public class DataAdapter {
             throw mSQLException;
         }
         return this;
-    }
+    }*/
 
     public void close()
     {
-        mDbHelper.close();
+        dbc.close();
     }
 
     public Cursor getTestData()
@@ -62,7 +60,7 @@ public class DataAdapter {
         {
             String sql ="SELECT * FROM myTable";
 
-            Cursor mCur = mDb.rawQuery(sql, null);
+            Cursor mCur = db.rawQuery(sql, null);
             if (mCur!=null)
             {
                 mCur.moveToNext();
