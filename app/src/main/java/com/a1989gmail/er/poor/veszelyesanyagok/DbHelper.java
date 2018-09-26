@@ -28,7 +28,7 @@ public class DbHelper extends SQLiteOpenHelper {
     //TODO: ezt miért hozza létre ha később másik contextet hoz létre?
     private final Context mContext;
 
-
+  //______________________________________________________________________________________________
     /*//a táblában található oszlopok
     public static final String id = "ID";
     public static final String COL_2 = "EricardSubkey";
@@ -63,24 +63,67 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String Elsosegelynyujtas = "elsosegelynyujtas";
     public static final String AlapvetoOvintezkedesekOsszegyujteshez = "alapveto_ovintezkedesek_osszegyujteshez";
     public static final String OvintezkedesekABeavatkozasUtan = "ovintezkedesek_a_beavatkozas_utan";
-
-
+  //______________________________________________________________________________________________
+    
+    
+//itt adom meg a db_path értékét vagyis az adatbázis helyét
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
-        //if(android.os.Build.VERSION.SDK_INT >= 17){
-            DB_PATH = context.getApplicationInfo().dataDir + DATABASE_NAME;
-        //}else
-        //{
-        //    DB_PATH = "/data/data/" + context.getPackageName() + "/databases/";
-        //}
+        DB_PATH = context.getDatabasePath(DATABASE_NAME).getPath();
         this.mContext = context;
     }
+    
+    //létrehozás, most= bemásolás
+    //TODO: létezik void önállóan?
+    void createDataBase() throws IOException {
+        if(!checkDataBase()) {
+            this.getReadableDatabase();
+            try{  //bemásolni az adatbázist az assetből
+                copyDataBase();
+                Log.i("dbhelper", "adatbázis bemásolása sikeres")
+            }catch(IOException mIOException){
+                throw new Error("ErrorCopyingDataBase");
+            }
+            this.close();
+        }
+    }
+    
+    //TODO: leelenőrizzük az adatbázis létezését
+    //Check that the database exists here: /data/data/your package/databases/Da Name
+    private boolean checkDataBase(){
+        File dbFile = new File(DB_PATH + DATABASE_NAME);
+        return dbFile.exists();
+    }
+    
+    
+    //TODO: bemásoljuk az adatbázist
+    //Copy the database from assets
+    private void copyDataBase() throws IOException
+    {
+        InputStream mInput = mContext.getAssets().open(DATABASE_NAME);
+        String outFileName = DB_PATH + DATABASE_NAME;
+        OutputStream mOutput = new FileOutputStream(outFileName);
+        byte[] mBuffer = new byte[1024];
+        int mLength;
+        while ((mLength = mInput.read(mBuffer))>0)
+        {
+            mOutput.write(mBuffer, 0, mLength);
+        }
+        mOutput.flush();
+        mOutput.close();
+        mInput.close();
+    }
+    //TODO: megnyitjuk az adatbázist a querykre
+    /*  boolean openDataBase() throws SQLException {
+            mDataBase = SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.CREATE_IF_NECESSARY);
+            return mDataBase != null;
+        }*/
 
-    public void createDataBase (SQLiteDatabase db){
-        boolean mDataBaseExist = checkDataBase();
+    /*public void createDataBase (SQLiteDatabase db){
+        //boolean mDataBaseExist = checkDataBase();
         /*String CREATE_TABLE="CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" ("+ID+" INTEGER PRIMARY KEY, "+EricardSubkey+" TEXT, "+Anyagnev+" TEXT, "+UnSzam+" TEXCREATE TABLE IF NOT EXISTS "+TABLE_NAME+" ("+ID+" INTEGER PRIMARY KEY, "+EricardSubkey+" TEXT, "+Anyagnev+" TEXT, "+UnSzam+T, "+VeszelyJel+" TEXT, "+AdrVeszelyessegiBarcaSzama+" TEXT, "+AdrVeszelyessegiOsztaly+" TEXT, "+EricardsHivatkozasiSzam+" TEXT, "+InformacioVeszhelyzetbenValoBeavatkozashoz+" TEXT, "+JellemzoTulajdonsagai+" TEXT, "+Veszelyek+" TEXT, "+Szemelyvedelem+" TEXT, "+BeavatkozasiTevekenyseg+" TEXT, "+Elsosegelynyujtas+" TEXT, "+AlapvetoOvintezkedesekOsszegyujteshez+" TEXT, "+OvintezkedesekABeavatkozasUtan+" TEXT)";
         db.execSQL(CREATE_TABLE);*/
-        if(!mDataBaseExist){
+        /*if(!mDataBaseExist){
             this.getReadableDatabase();
             //this.close();
             try{
@@ -91,14 +134,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 throw new Error("ErrorCopyingDataBase");
             }
         }
-    }
-
-    /*@Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME);
-        onCreate(db);
     }*/
-
+    
     //Open the database, so we can query it
     public void openDataBase() /*throws SQLException*/
     {
@@ -117,38 +154,16 @@ public class DbHelper extends SQLiteOpenHelper {
         super.close();
     }
 
-    //Check that the database exists here: /data/data/your package/databases/Da Name
-    private boolean checkDataBase()
-    {
-        File dbFile = new File(DB_PATH + DATABASE_NAME);
-        //Log.v("dbFile", dbFile + "   "+ dbFile.exists());
-        return dbFile.exists();
-    }
-
-    //Copy the database from assets
-    private void copyDataBase() throws IOException
-    {
-        InputStream mInput = mContext.getAssets().open(DATABASE_NAME);
-        String outFileName = DB_PATH + DATABASE_NAME;
-        OutputStream mOutput = new FileOutputStream(outFileName);
-        byte[] mBuffer = new byte[1024];
-        int mLength;
-        while ((mLength = mInput.read(mBuffer))>0)
-        {
-            mOutput.write(mBuffer, 0, mLength);
-        }
-        mOutput.flush();
-        mOutput.close();
-        mInput.close();
-    }
-
+    //______________________________________________________________________________________________
+    //__________________________________      ABSZTRAKT METÓDUSOK      _____________________________
+    //______________________________________________________________________________________________
+    //ezek kellenek az absztrakció miatt, de nem ezt használjuk 
     @Override
     public void onCreate(SQLiteDatabase db) {
         // No need to write the create table query.
         // As we are using Pre built data base.
         // Which is ReadOnly.
     }
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // No need to write the update table query.
@@ -156,7 +171,16 @@ public class DbHelper extends SQLiteOpenHelper {
         // Which is ReadOnly.
         // We should not update it as requirements of application.
     }
+    
+    /*@Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME);
+        onCreate(db);
+    }*/
 
+    //______________________________________________________________________________________________
+    //__________________________________      QUERIES      ________________________________________
+    //______________________________________________________________________________________________
     //ez egy lekérdezés amit később a mainfüggvényben fogok használni a legördülő listánál
     public List<String> getAllLabels(){
         List<String> labels = new ArrayList<String>();
