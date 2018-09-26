@@ -104,7 +104,7 @@ import java.util.List;
         }
 
         //ADAT FELVÉTEL
-        public boolean adatRogzites(String ericardSubkey, String anyagnev, int unSzam, String veszelyJel, String adrVeszelyessegiBarcaSzama, String adrVeszelyessegiOsztaly, String ericardsHivatkozasiSzam, String informacioVeszhelyzetbenValoBeavatkozashoz, String jellemzoTulajdonsagai, String veszelyek, String szemelyvedelem, String beavatkozasiTevekenyseg, String elsosegelynyujtas, String alapvetoOvintezkedesekOsszegyujteshez, String ovintezkedesekABeavatkozasUtan) {
+        /*public boolean adatRogzites(String ericardSubkey, String anyagnev, int unSzam, String veszelyJel, String adrVeszelyessegiBarcaSzama, String adrVeszelyessegiOsztaly, String ericardsHivatkozasiSzam, String informacioVeszhelyzetbenValoBeavatkozashoz, String jellemzoTulajdonsagai, String veszelyek, String szemelyvedelem, String beavatkozasiTevekenyseg, String elsosegelynyujtas, String alapvetoOvintezkedesekOsszegyujteshez, String ovintezkedesekABeavatkozasUtan) {
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             contentValues.put(COL_2,ericardSubkey);
@@ -130,7 +130,7 @@ import java.util.List;
             }else{
                 return true;       //sikeres felvétel esetén true eredményt add vissza
             }
-        }
+        }*/
 
         //ADAT TÖRLÉS
         public Integer adatTorles(String id)
@@ -155,7 +155,9 @@ import java.util.List;
             Log.wtf("DBconnect", "Adatok felvétele sikeresen megtörtént");
         }
 
-        public void onOpen(SQLiteDatabase db);
+        public void onOpen(SQLiteDatabase db){
+        
+        }
 
 
         public List<String> getAllLabels(){
